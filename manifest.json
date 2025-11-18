@@ -1,0 +1,159 @@
+{
+  "name": "Tano Evoluzione - Bosch Car Service",
+  "short_name": "Tano Evoluzione",
+  "description": "Sistema di tracciamento interventi meccanici con sincronizzazione in tempo reale",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "scope": "./",
+  "icons": [
+    {
+      "src": "./logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Nuovo Veicolo",
+      "short_name": "Nuovo",
+      "description": "Aggiungi un nuovo veicolo",
+      "url": "./?action=new",
+      "icons": [
+        {
+          "src": "./logo.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Stats",
+      "description": "Visualizza statistiche",
+      "url": "./?action=dashboard",
+      "icons": [
+        {
+          "src": "./logo.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        {
+          "name": "photos",
+          "accept": ["image/*"]
+        }
+      ]
+    }
+  }
+}
+```
+
+---
+
+## 💾 **Instructions pour créer le fichier :**
+
+### **Sur Windows :**
+
+1. **Ouvrez le Bloc-notes** (Notepad)
+   - Touche Windows → Tapez "Notepad" → Entrée
+
+2. **Collez tout le code JSON ci-dessus**
+   - Sélectionnez tout (Ctrl+A sur le code)
+   - Ctrl+C pour copier
+   - Ctrl+V pour coller dans Notepad
+
+3. **Enregistrez le fichier**
+   - Fichier → Enregistrer sous
+   - **Nom du fichier :** `manifest.json` (exactement, avec les guillemets si demandé)
+   - **Type :** **Tous les fichiers (*.*)**  ← IMPORTANT !
+   - **Encodage :** UTF-8
+   - **Emplacement :** Le dossier de votre projet
+   - Cliquez sur **Enregistrer**
+
+---
+
+### **Sur Mac :**
+
+1. **Ouvrez TextEdit**
+   - Applications → TextEdit
+
+2. **Passez en mode texte brut**
+   - Format → Make Plain Text (Shift+Cmd+T)
+
+3. **Collez le code**
+   - Cmd+V
+
+4. **Enregistrez**
+   - Fichier → Enregistrer sous
+   - **Nom :** `manifest.json`
+   - **Format :** Plain Text
+   - **Encodage :** UTF-8
+   - **Emplacement :** Votre dossier de projet
+
+---
+
+### **Avec VS Code (recommandé) :**
+
+1. **Ouvrez VS Code**
+
+2. **Créez un nouveau fichier**
+   - File → New File
+   - Ou Ctrl+N (Windows) / Cmd+N (Mac)
+
+3. **Collez le code JSON**
+
+4. **Enregistrez**
+   - File → Save As
+   - **Nom :** `manifest.json`
+   - VS Code détectera automatiquement que c'est du JSON
+
+---
+
+## ⚠️ **TRÈS IMPORTANT : Vérifications**
+
+Après avoir créé le fichier, assurez-vous que :
+
+### ✅ **Le nom est EXACTEMENT :**
+- `manifest.json` (tout en minuscules)
+- PAS `manifest.json.txt`
+- PAS `manifest.JSON`
+
+### ✅ **Comment vérifier sur Windows :**
+1. Ouvrez l'Explorateur de fichiers
+2. Allez dans l'onglet "Affichage"
+3. Cochez "Extensions de noms de fichiers"
+4. Vérifiez que le fichier s'appelle bien `manifest.json`
+
+### ✅ **Si vous voyez `manifest.json.txt` :**
+1. Clic droit sur le fichier → Renommer
+2. Supprimez le `.txt` à la fin
+3. Confirmez
+
+---
+
+## 📂 **Structure finale de vos fichiers :**
+```
+votre-projet/
+│
+├── index.html          ← Votre HTML mis à jour
+├── manifest.json       ← LE FICHIER QUE VOUS VENEZ DE CRÉER
+├── sw.js              ← Le Service Worker
+├── logo.png           ← Votre logo 512x512px
+└── Background.png     ← Votre image de fond
