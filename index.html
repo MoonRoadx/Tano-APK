@@ -8,9 +8,17 @@
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="apple-mobile-web-app-title" content="Tano Evoluzione"/>
-  <link rel="manifest" href="manifest.json"/>
-  <link rel="apple-touch-icon" href="logo.png"/>
-  <title>Tano Evoluzione - Sistema NFC</title>
+  <!-- Favicons pour tous les navigateurs -->
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+<!-- PWA Manifest -->
+<link rel="manifest" href="manifest.json"/>
+
+<title>Tano Evoluzione - Sistema NFC v1.8</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -202,7 +210,8 @@
 
     const garageInfo = {
       name: "Tano Evoluzione - Bosch Car Service",
-      address: "Via dello Stadio, 179, 00060 Sacrofano RM - Via Sacrofano-Prima Porta, 3756, 00060 Borgo Pineto I RM",
+      address: "Via dello Stadio, 179, 00060 Sacrofano RM",
+      address2: "Via Sacrofano-Prima Porta, 3756, 00060 Borgo Pineto I RM",
       phone: "3478511524",
       email: "tanosrls@gmail.com",
       vatNumber: "15390421004",
