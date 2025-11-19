@@ -5,13 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <meta name="description" content="Sistema di tracciamento interventi meccanici - Tano Evoluzione"/>
   <meta name="theme-color" content="#2563eb"/>
-  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="apple-mobile-web-app-title" content="Tano Evoluzione"/>
   <link rel="manifest" href="manifest.json"/>
-  <link rel="apple-touch-icon" href="apple-touch-icon.png"/>
-  <link rel="icon" type="image/x-icon" href="favicon.ico"/>
-  <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png"/>
+  <link rel="apple-touch-icon" href="logo.png"/>
   <title>Tano Evoluzione - Sistema NFC v1.8</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -94,6 +92,43 @@
     .tag-warranty { background: #059669; color: white; }
     .tag-recurring { background: #2563eb; color: white; }
     .tag-parts { background: #7c3aed; color: white; }
+    
+    .install-prompt {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      max-width: 90%;
+      animation: slideUp 0.3s ease-out;
+    }
+    .install-prompt button {
+      background: white;
+      color: #2563eb;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .install-prompt button:hover {
+      background: #f1f5f9;
+    }
+    
+    @media (max-width: 768px) {
+      body { font-size: 14px; }
+      .bg-white { padding: 12px !important; }
+      input, textarea, select { font-size: 16px !important; }
+      button { min-height: 44px; }
+    }
   </style>
 </head>
 <body>
@@ -133,6 +168,13 @@
     window.firebaseReady = true;
     console.log("✅ Firebase initialized");
     window.dispatchEvent(new Event('firebaseReady'));
+    
+    // Service Worker Registration for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('✅ Service Worker registered'))
+        .catch(err => console.log('❌ SW registration failed:', err));
+    }
   </script>
 
   <script>
@@ -188,7 +230,7 @@
         mechanicName: "Nome meccanico", observations: "Osservazioni, raccomandazioni...", exportCSV: "Esporta CSV",
         link: "Link", newButton: "Nuovo", vehicleNotFound: "Veicolo non trovato", backToLogin: "Torna all'accesso",
         accessDenied: "Accesso negato", plateRequired: "Targa obbligatoria", vehicleExists: "Veicolo già esistente",
-        typeDescRequired: "Tipo e descrizione obbligatori", invalidCode: "Codice non valido",
+        typeDescRequired: "Tipo obbligatorio", invalidCode: "Codice non valido",
         mechanicAccess: "Accesso meccanico", welcome: "Benvenuto", autoAccess: "Accesso automatico effettuato",
         linkInvalid: "Link non valido o scaduto", vehicleAdded: "Veicolo aggiunto con successo", dataSaved: "Dati salvati",
         csvExported: "CSV esportato", linkCopied: "Link copiato negli appunti", disconnected: "Disconnesso",
@@ -267,7 +309,7 @@
         mechanicName: "Nom du mécanicien", observations: "Observations, recommandations...", exportCSV: "Exporter CSV",
         link: "Lien", newButton: "Nouveau", vehicleNotFound: "Véhicule non trouvé", backToLogin: "Retour à la connexion",
         accessDenied: "Accès refusé", plateRequired: "Plaque obligatoire", vehicleExists: "Véhicule déjà existant",
-        typeDescRequired: "Type et description obligatoires", invalidCode: "Code non valide",
+        typeDescRequired: "Type obligatoire", invalidCode: "Code non valide",
         mechanicAccess: "Accès mécanicien", welcome: "Bienvenue", autoAccess: "Accès automatique effectué",
         linkInvalid: "Lien non valide ou expiré", vehicleAdded: "Véhicule ajouté avec succès", dataSaved: "Données sauvegardées",
         csvExported: "CSV exporté", linkCopied: "Lien copié dans le presse-papiers", disconnected: "Déconnecté",
@@ -309,6 +351,18 @@
         serviceRepair: "Réparation",
         serviceInspection: "Révision",
         serviceTires: "Changement pneus",
+        serviceBrakes: "Freins",
+        serviceBattery: "Batterie",
+        serviceBulbs: "Ampoules",
+        serviceHeadlights: "Phares",
+        serviceExhaust: "Échappement",
+        serviceAirConditioning: "Climatisation",
+        serviceSuspension: "Suspensions",
+        serviceTransmission: "Transmission",
+        serviceCooling: "Refroidissement",
+        serviceElectrical: "Système électrique",
+        serviceBodywork: "Carrosserie",
+        serviceGlass: "Vitres",
         serviceOther: "Autre",
         realtimeActive: "Synchronisation temps réel active",
         syncingData: "Synchronisation des données...",
@@ -334,7 +388,7 @@
         mechanicName: "Mechanic name", observations: "Observations, recommendations...", exportCSV: "Export CSV",
         link: "Link", newButton: "New", vehicleNotFound: "Vehicle not found", backToLogin: "Back to login",
         accessDenied: "Access denied", plateRequired: "Plate required", vehicleExists: "Vehicle already exists",
-        typeDescRequired: "Type and description required", invalidCode: "Invalid code",
+        typeDescRequired: "Type required", invalidCode: "Invalid code",
         mechanicAccess: "Mechanic access", welcome: "Welcome", autoAccess: "Automatic access granted",
         linkInvalid: "Invalid or expired link", vehicleAdded: "Vehicle added successfully", dataSaved: "Data saved",
         csvExported: "CSV exported", linkCopied: "Link copied to clipboard", disconnected: "Disconnected",
@@ -377,10 +431,29 @@
         serviceRepair: "Repair",
         serviceInspection: "Inspection",
         serviceTires: "Tire Change",
+        serviceBrakes: "Brakes",
+        serviceBattery: "Battery",
+        serviceBulbs: "Bulbs",
+        serviceHeadlights: "Headlights",
+        serviceExhaust: "Exhaust",
+        serviceAirConditioning: "Air Conditioning",
+        serviceSuspension: "Suspension",
+        serviceTransmission: "Transmission",
+        serviceCooling: "Cooling System",
+        serviceElectrical: "Electrical System",
+        serviceBodywork: "Bodywork",
+        serviceGlass: "Glass",
         serviceOther: "Other",
         realtimeActive: "Real-time sync active",
         syncingData: "Syncing data...",
         clientNotified: "Client notified"
+      },
+      pwa: {
+        installPrompt: "Install the app on your phone",
+        installButton: "Install",
+        closeButton: "Close",
+        installed: "App installed successfully!",
+        iosInstructions: "To install: tap 'Share' then 'Add to Home Screen'"
       }
     };
 
@@ -399,6 +472,55 @@
     let showLoginScreen = true, searchQuery = '', showShareModal = false, shareModalTarga = null, realtimeUnsubscribe = null, showAppointmentForm = false;
     let showDashboard = false, showAdvancedSearch = false, filters = { date: '', type: '', mechanic: '', costMin: '', costMax: '' };
     let isOffline = !navigator.onLine;
+    let deferredPrompt = null;
+
+    // PWA Install Prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      showInstallPrompt();
+    });
+
+    function showInstallPrompt() {
+      if (!deferredPrompt || localStorage.getItem('pwa_dismissed')) return;
+      
+      const prompt = document.createElement('div');
+      prompt.className = 'install-prompt';
+      prompt.innerHTML = `
+        <div>
+          <strong>📱 ${t('pwa').installPrompt}</strong>
+          ${isIOS() ? `<div style="font-size: 12px; margin-top: 4px;">${t('pwa').iosInstructions}</div>` : ''}
+        </div>
+        ${!isIOS() ? `<button onclick="installPWA()" style="margin-right: 8px;">${t('pwa').installButton}</button>` : ''}
+        <button onclick="dismissInstallPrompt()">${t('pwa').closeButton}</button>
+      `;
+      document.body.appendChild(prompt);
+    }
+
+    function isIOS() {
+      return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    }
+
+    window.installPWA = async function() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        showNotification(`✅ ${t('pwa').installed}`);
+      }
+      deferredPrompt = null;
+      document.querySelector('.install-prompt')?.remove();
+    };
+
+    window.dismissInstallPrompt = function() {
+      localStorage.setItem('pwa_dismissed', 'true');
+      document.querySelector('.install-prompt')?.remove();
+    };
+
+    window.addEventListener('appinstalled', () => {
+      showNotification(`✅ ${t('pwa').installed}`);
+      deferredPrompt = null;
+    });
 
     function showNotification(message, type = 'success') {
       const notification = document.createElement('div');
@@ -754,8 +876,8 @@
       const previewImages = document.querySelectorAll('#photoPreview img');
       previewImages.forEach(img => photos.push(img.src));
       
-      if (!tipo || !descrizione) {
-        return showNotification(`❌ ${t('typeDescRequired')}`, 'error');
+      if (!tipo) {
+        return showNotification(`❌ ${t('type')} ${t('required')}`, 'error');
       }
       
       const intervento = { 
@@ -1260,6 +1382,18 @@
                       <option value="Riparazione">${t('serviceRepair')}</option>
                       <option value="Revisione">${t('serviceInspection')}</option>
                       <option value="Gomme">${t('serviceTires')}</option>
+                      <option value="Freni">${t('serviceBrakes')}</option>
+                      <option value="Batteria">${t('serviceBattery')}</option>
+                      <option value="Lampadine">${t('serviceBulbs')}</option>
+                      <option value="Fari">${t('serviceHeadlights')}</option>
+                      <option value="Scarico">${t('serviceExhaust')}</option>
+                      <option value="Climatizzazione">${t('serviceAirConditioning')}</option>
+                      <option value="Sospensioni">${t('serviceSuspension')}</option>
+                      <option value="Trasmissione">${t('serviceTransmission')}</option>
+                      <option value="Raffreddamento">${t('serviceCooling')}</option>
+                      <option value="Impianto elettrico">${t('serviceElectrical')}</option>
+                      <option value="Carrozzeria">${t('serviceBodywork')}</option>
+                      <option value="Cristalli">${t('serviceGlass')}</option>
                       <option value="Altro">${t('serviceOther')}</option>
                     </select>
                   </div>
@@ -1580,10 +1714,22 @@
                       <option value="Riparazione">${t('serviceRepair')}</option>
                       <option value="Revisione">${t('serviceInspection')}</option>
                       <option value="Gomme">${t('serviceTires')}</option>
+                      <option value="Freni">${t('serviceBrakes')}</option>
+                      <option value="Batteria">${t('serviceBattery')}</option>
+                      <option value="Lampadine">${t('serviceBulbs')}</option>
+                      <option value="Fari">${t('serviceHeadlights')}</option>
+                      <option value="Scarico">${t('serviceExhaust')}</option>
+                      <option value="Climatizzazione">${t('serviceAirConditioning')}</option>
+                      <option value="Sospensioni">${t('serviceSuspension')}</option>
+                      <option value="Trasmissione">${t('serviceTransmission')}</option>
+                      <option value="Raffreddamento">${t('serviceCooling')}</option>
+                      <option value="Impianto elettrico">${t('serviceElectrical')}</option>
+                      <option value="Carrozzeria">${t('serviceBodywork')}</option>
+                      <option value="Cristalli">${t('serviceGlass')}</option>
                       <option value="Altro">${t('serviceOther')}</option>
                     </select>
                   </div>
-                  <div><label class="block text-sm font-semibold mb-1">📝 ${t('description')} *</label><textarea id="interventoDesc" rows="3" placeholder="${t('interventionDetails')}" class="w-full px-3 py-2 border rounded"></textarea></div>
+                  <div><label class="block text-sm font-semibold mb-1">📝 ${t('description')} ${t('optional')}</label><textarea id="interventoDesc" rows="3" placeholder="${t('interventionDetails')}" class="w-full px-3 py-2 border rounded"></textarea></div>
                   <div><label class="block text-sm font-semibold mb-1">🔩 ${t('parts')}</label><input type="text" id="interventoRicambi" placeholder="${t('partsExample')}" class="w-full px-3 py-2 border rounded"></div>
                   <div class="grid grid-cols-2 gap-3">
                     <div><label class="block text-sm font-semibold mb-1">💰 ${t('cost')} (€)</label><input type="number" id="interventoCosto" step="0.01" placeholder="0.00" class="w-full px-3 py-2 border rounded"></div>
