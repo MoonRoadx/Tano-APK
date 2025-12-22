@@ -893,6 +893,9 @@
         return showNotification(`❌ ${t('type')} ${t('required')}`, 'error');
       }
       
+      const paymentStatus = document.getElementById('interventoPaymentStatus')?.value || 'unpaid';
+      const paymentDate = document.getElementById('interventoPaymentDate')?.value || '';
+      
       const intervento = { 
         id: Date.now(), 
         data, 
@@ -909,6 +912,8 @@
         note, 
         photos,
         tags,
+        paymentStatus: paymentStatus,
+        paymentDate: paymentDate,
         timestamp: new Date().toISOString() 
       };
       
@@ -937,6 +942,26 @@
       vehicles[currentVehicle].interventi = vehicles[currentVehicle].interventi.filter(i => i.id !== id);
       saveDataLocal();
       await syncToFirestore(currentVehicle, vehicles[currentVehicle]);
+      render();
+    }
+
+
+    function updatePaymentStatus(interventoId, newStatus) {
+      if (!isMechanicMode) return showNotification('❌ Accès refusé', 'error');
+      
+      const vehicle = vehicles[currentVehicle];
+      const intervention = vehicle.interventi.find(i => i.id === interventoId);
+      
+      if (!intervention) return;
+      
+      intervention.paymentStatus = newStatus;
+      if (newStatus === 'paid' && !intervention.paymentDate) {
+        intervention.paymentDate = new Date().toISOString().split('T')[0];
+      }
+      
+      saveDataLocal();
+      syncToFirestore(currentVehicle, vehicle);
+      showNotification('✅ Statut de paiement mis à jour', 'success');
       render();
     }
 
@@ -1236,6 +1261,123 @@
         console.error('PDF Error:', error);
         showNotification(`❌ ${t('invoiceError')}`, 'error');
       }
+    }
+
+
+    function getPaymentStats() {
+      const stats = {
+        total: 0,
+        paid: 0,
+        unpaid: 0,
+        partial: 0,
+        amountPaid: 0,
+        amountUnpaid: 0,
+        amountPartial: 0
+      };
+      
+      Object.values(vehicles).forEach(vehicle => {
+        if (!vehicle.interventi) return;
+        
+        vehicle.interventi.forEach(inter => {
+          const amount = parseFloat(inter.costo) || 0;
+          stats.total += amount;
+          
+          if (inter.paymentStatus === 'paid') {
+            stats.paid++;
+            stats.amountPaid += amount;
+          } else if (inter.paymentStatus === 'partial') {
+            stats.partial++;
+            stats.amountPartial += amount;
+          } else {
+            stats.unpaid++;
+            stats.amountUnpaid += amount;
+          }
+        });
+      });
+      
+      return stats;
+    }
+
+
+    function exportPaymentReport() {
+      const stats = getPaymentStats();
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      // En-tête
+      doc.setFontSize(20);
+      doc.setFont(undefined, 'bold');
+      doc.text('RAPPORT DE PAIEMENTS', 105, 20, { align: 'center' });
+      
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'normal');
+      doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, 105, 28, { align: 'center' });
+      
+      // Ligne de séparation
+      doc.setLineWidth(0.5);
+      doc.line(20, 32, 190, 32);
+      
+      // Résumé
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'bold');
+      doc.text('RÉSUMÉ GLOBAL', 20, 42);
+      
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'normal');
+      let y = 50;
+      
+      doc.text(`Chiffre d'affaires total: ${stats.total.toFixed(2)} €`, 20, y);
+      doc.text(`Montant payé: ${stats.amountPaid.toFixed(2)} € (${(stats.amountPaid/stats.total*100).toFixed(1)}%)`, 20, y += 6);
+      doc.text(`Montant non payé: ${stats.amountUnpaid.toFixed(2)} € (${(stats.amountUnpaid/stats.total*100).toFixed(1)}%)`, 20, y += 6);
+      if (stats.partial > 0) {
+        doc.text(`Montant partiel: ${stats.amountPartial.toFixed(2)} € (${(stats.amountPartial/stats.total*100).toFixed(1)}%)`, 20, y += 6);
+      }
+      
+      doc.text(`Total interventions: ${stats.paid + stats.unpaid + stats.partial}`, 20, y += 10);
+      doc.text(`Payées: ${stats.paid}`, 20, y += 6);
+      doc.text(`Non payées: ${stats.unpaid}`, 20, y += 6);
+      if (stats.partial > 0) {
+        doc.text(`Partielles: ${stats.partial}`, 20, y += 6);
+      }
+      
+      // Interventions non payées détaillées
+      y += 15;
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'bold');
+      doc.text('INTERVENTIONS NON PAYÉES', 20, y);
+      
+      const unpaidList = [];
+      Object.entries(vehicles).forEach(([targa, vehicle]) => {
+        if (!vehicle.interventi) return;
+        vehicle.interventi.forEach(inter => {
+          if (inter.paymentStatus === 'unpaid' || !inter.paymentStatus) {
+            unpaidList.push([
+              targa,
+              inter.data || '-',
+              inter.tipo || '-',
+              (parseFloat(inter.costo) || 0).toFixed(2) + ' €'
+            ]);
+          }
+        });
+      });
+      
+      if (unpaidList.length > 0) {
+        doc.autoTable({
+          startY: y + 5,
+          head: [['Véhicule', 'Date', 'Type', 'Montant']],
+          body: unpaidList,
+          theme: 'grid',
+          headStyles: { fillColor: [220, 38, 38], textColor: 255, fontStyle: 'bold' },
+          styles: { fontSize: 9 }
+        });
+      } else {
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'italic');
+        doc.text('Aucune intervention impayée', 20, y + 10);
+      }
+      
+      doc.save(`Rapport_Paiements_${new Date().toISOString().split('T')[0]}.pdf`);
+      showNotification('✅ Rapport de paiements généré', 'success');
     }
 
     function render() {
@@ -1722,9 +1864,14 @@
                           ${inter.tipo4 ? `<div class="text-sm text-blue-300 mt-1">🔧 ${inter.tipo4}</div>` : ''}
                           ${inter.tipo5 ? `<div class="text-sm text-blue-300 mt-1">🔧 ${inter.tipo5}</div>` : ''}
                         </div>
-                        ${isMechanicMode ? `<div class="flex gap-2">
-                          <button onclick="deleteIntervento(${inter.id})" class="text-red-500 hover:bg-red-50 px-2 py-1 rounded text-sm font-bold">✕</button>
+                        ${isMechanicMode ? `<div class="flex flex-wrap gap-2">
+                          ${inter.paymentStatus !== 'paid' ? `
+                            <button onclick="updatePaymentStatus(${inter.id}, 'paid')" 
+                              class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-semibold">
+                              ✅ Marquer payé
+                            </button>` : ''}
                           <button onclick="generateInvoice(${inter.id})" class="pdf-button text-white px-3 py-1 rounded text-sm font-semibold">📄 ${t('generateInvoice')}</button>
+                          <button onclick="deleteIntervento(${inter.id})" class="text-red-500 hover:bg-red-50 px-2 py-1 rounded text-sm font-bold">✕</button>
                         </div>` : ''}
                       </div>
                       <p class="text-gray-300 mb-2">${inter.descrizione}</p>
@@ -1742,6 +1889,16 @@
                         ${inter.chilometraggio ? `<div class="text-gray-400 font-semibold">🚗 ${inter.chilometraggio} km</div>` : ''}
                         ${inter.meccanico ? `<div class="text-gray-400">👤 ${inter.meccanico}</div>` : ''}
                       </div>
+                      ${inter.paymentStatus ? `
+                        <div class="mt-3 inline-flex items-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm ${
+                          inter.paymentStatus === 'paid' ? 'bg-green-900 bg-opacity-40 border border-green-500 text-green-300' :
+                          inter.paymentStatus === 'partial' ? 'bg-yellow-900 bg-opacity-40 border border-yellow-500 text-yellow-300' :
+                          'bg-red-900 bg-opacity-40 border border-red-500 text-red-300'
+                        }">
+                          ${inter.paymentStatus === 'paid' ? '✅ Payé' : inter.paymentStatus === 'partial' ? '⏳ Payé partiellement' : '❌ Non payé'}
+                          ${inter.paymentDate ? ` - ${inter.paymentDate}` : ''}
+                        </div>
+                      ` : ''}
                     </div>`).join('')}
                 </div>`}
             </div>
@@ -1751,9 +1908,23 @@
         app.innerHTML = `
           <div class="min-h-screen">
             <div class="bg-blue-600 text-white p-4 shadow-lg">
-              <div class="flex items-center gap-3">
-                <img src="logo.png" alt="TANO" class="h-10 w-10 object-contain rounded-lg bg-white p-1" onerror="this.style.display='none'">
-                <div><h1 class="text-xl font-bold">${vehicle.targa}</h1><p class="text-blue-100">➕ ${t('newIntervention')}</p></div>
+              <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                  <img src="logo.png" alt="TANO" class="h-10 w-10 object-contain rounded-lg bg-white p-1" onerror="this.style.display='none'">
+                  <div><h1 class="text-xl font-bold">${vehicle.targa}</h1><p class="text-blue-100">➕ ${t('newIntervention')}</p></div>
+                </div>
+                ${(() => {
+                  const unpaid = vehicle.interventi.filter(i => i.paymentStatus === 'unpaid' || !i.paymentStatus).length;
+                  const unpaidAmount = vehicle.interventi
+                    .filter(i => i.paymentStatus === 'unpaid' || !i.paymentStatus)
+                    .reduce((sum, i) => sum + (parseFloat(i.costo) || 0), 0);
+                  return unpaid > 0 ? `
+                    <div class="bg-red-500 bg-opacity-20 border border-red-300 rounded-lg px-3 py-2">
+                      <div class="text-sm font-semibold">❌ ${unpaid} impayé(s)</div>
+                      <div class="text-xs">${unpaidAmount.toFixed(2)} €</div>
+                    </div>
+                  ` : '';
+                })()}
               </div>
             </div>
             <div class="p-4">
@@ -1878,6 +2049,24 @@
                   </div>
                   <div><label class="block text-sm font-semibold mb-1">👤 ${t('mechanic')}</label><input type="text" id="interventoMeccanico" placeholder="${t('mechanicName')}" class="w-full px-3 py-2 border rounded"></div>
                   <div><label class="block text-sm font-semibold mb-1">💬 ${t('notes')}</label><textarea id="interventoNote" rows="3" placeholder="${t('observations')}" class="w-full px-3 py-2 border rounded"></textarea></div>
+                  
+                  <div class="border-t border-gray-600 pt-3 mt-3">
+                    <h3 class="text-sm font-semibold text-gray-300 mb-3">💰 Paiement</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                      <div>
+                        <label class="block text-sm font-semibold mb-1">Statut *</label>
+                        <select id="interventoPaymentStatus" class="w-full px-3 py-2 border rounded">
+                          <option value="unpaid">❌ Non payé</option>
+                          <option value="partial">⏳ Payé partiellement</option>
+                          <option value="paid">✅ Payé</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label class="block text-sm font-semibold mb-1">Date paiement</label>
+                        <input type="date" id="interventoPaymentDate" class="w-full px-3 py-2 border rounded">
+                      </div>
+                    </div>
+                  </div>
                   
                   <div class="border-t border-gray-600 pt-3 mt-3">
                     <h3 class="text-sm font-semibold text-gray-300 mb-2">🏷️ ${t('tags')}</h3>
