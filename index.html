@@ -873,6 +873,10 @@
       
       const data = document.getElementById('interventoData').value;
       const tipo = document.getElementById('interventoTipo').value;
+      const tipo2 = document.getElementById('interventoTipo2')?.value || '';
+      const tipo3 = document.getElementById('interventoTipo3')?.value || '';
+      const tipo4 = document.getElementById('interventoTipo4')?.value || '';
+      const tipo5 = document.getElementById('interventoTipo5')?.value || '';
       const descrizione = document.getElementById('interventoDesc').value.trim();
       const ricambi = document.getElementById('interventoRicambi').value.trim();
       const costo = document.getElementById('interventoCosto').value;
@@ -893,6 +897,10 @@
         id: Date.now(), 
         data, 
         tipo, 
+        tipo2,
+        tipo3,
+        tipo4,
+        tipo5,
         descrizione, 
         ricambi, 
         costo, 
@@ -1064,9 +1072,9 @@
 
     function exportToExcel() {
       const vehicle = vehicles[currentVehicle];
-      let csv = `${t('date')};${t('type')};${t('description')};${t('parts')};${t('cost')};${t('mileage')};${t('mechanic')};${t('notes')}\n`;
+      let csv = `${t('date')};${t('type')};Type 2;Type 3;Type 4;Type 5;${t('description')};${t('parts')};${t('cost')};${t('mileage')};${t('mechanic')};${t('notes')}\n`;
       (vehicle.interventi || []).forEach(inter => {
-        csv += `${inter.data || ''};${inter.tipo || ''};${(inter.descrizione || '').replace(/;/g, ',')};${(inter.ricambi || '').replace(/;/g, ',')};${inter.costo || ''};${inter.chilometraggio || ''};${inter.meccanico || ''};${(inter.note || '').replace(/;/g, ',')}\n`;
+        csv += `${inter.data || ''};${inter.tipo || ''};${inter.tipo2 || ''};${inter.tipo3 || ''};${inter.tipo4 || ''};${inter.tipo5 || ''};${(inter.descrizione || '').replace(/;/g, ',')};${(inter.ricambi || '').replace(/;/g, ',')};${inter.costo || ''};${inter.chilometraggio || ''};${inter.meccanico || ''};${(inter.note || '').replace(/;/g, ',')}\n`;
       });
       const a = document.createElement('a');
       a.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv));
@@ -1165,14 +1173,16 @@
           vehicle.interventi.forEach(inter => {
             const cost = parseFloat(inter.costo) || 0;
             total += cost;
-            body.push([inter.data || '', inter.tipo || '', inter.descrizione || '', inter.ricambi || '', cost.toFixed(2)]);
+            const allTipos = [inter.tipo, inter.tipo2, inter.tipo3, inter.tipo4, inter.tipo5].filter(t => t).join(', ');
+            body.push([inter.data || '', allTipos || '', inter.descrizione || '', inter.ricambi || '', cost.toFixed(2)]);
           });
         } else {
           const inter = vehicle.interventi.find(i => i.id === interventoId);
           if (inter) {
             const cost = parseFloat(inter.costo) || 0;
             total = cost;
-            body.push([inter.data || '', inter.tipo || '', inter.descrizione || '', inter.ricambi || '', cost.toFixed(2)]);
+            const allTipos = [inter.tipo, inter.tipo2, inter.tipo3, inter.tipo4, inter.tipo5].filter(t => t).join(', ');
+            body.push([inter.data || '', allTipos || '', inter.descrizione || '', inter.ricambi || '', cost.toFixed(2)]);
           }
         }
         
@@ -1677,6 +1687,10 @@
                         <div class="flex-1">
                           <div class="text-sm text-gray-400 mb-1">📅 ${inter.data || t('date')}</div>
                           <h3 class="font-bold text-lg text-blue-400">${inter.tipo}</h3>
+                          ${inter.tipo2 ? `<div class="text-sm text-blue-300 mt-1">🔧 ${inter.tipo2}</div>` : ''}
+                          ${inter.tipo3 ? `<div class="text-sm text-blue-300 mt-1">🔧 ${inter.tipo3}</div>` : ''}
+                          ${inter.tipo4 ? `<div class="text-sm text-blue-300 mt-1">🔧 ${inter.tipo4}</div>` : ''}
+                          ${inter.tipo5 ? `<div class="text-sm text-blue-300 mt-1">🔧 ${inter.tipo5}</div>` : ''}
                         </div>
                         ${isMechanicMode ? `<div class="flex gap-2">
                           <button onclick="deleteIntervento(${inter.id})" class="text-red-500 hover:bg-red-50 px-2 py-1 rounded text-sm font-bold">✕</button>
@@ -1718,6 +1732,94 @@
                   <div><label class="block text-sm font-semibold mb-1">📅 ${t('date')} *</label><input type="date" id="interventoData" value="${today}" class="w-full px-3 py-2 border rounded"></div>
                   <div><label class="block text-sm font-semibold mb-1">🔧 ${t('type')} *</label>
                     <select id="interventoTipo" class="w-full px-3 py-2 border rounded">
+                      <option value="">${t('selectType')}</option>
+                      <option value="Tagliando">${t('serviceOilChange')}</option>
+                      <option value="Riparazione">${t('serviceRepair')}</option>
+                      <option value="Revisione">${t('serviceInspection')}</option>
+                      <option value="Gomme">${t('serviceTires')}</option>
+                      <option value="Freni">${t('serviceBrakes')}</option>
+                      <option value="Batteria">${t('serviceBattery')}</option>
+                      <option value="Lampadine">${t('serviceBulbs')}</option>
+                      <option value="Fari">${t('serviceHeadlights')}</option>
+                      <option value="Scarico">${t('serviceExhaust')}</option>
+                      <option value="Climatizzazione">${t('serviceAirConditioning')}</option>
+                      <option value="Sospensioni">${t('serviceSuspension')}</option>
+                      <option value="Trasmissione">${t('serviceTransmission')}</option>
+                      <option value="Raffreddamento">${t('serviceCooling')}</option>
+                      <option value="Impianto elettrico">${t('serviceElectrical')}</option>
+                      <option value="Carrozzeria">${t('serviceBodywork')}</option>
+                      <option value="Cristalli">${t('serviceGlass')}</option>
+                      <option value="Altro">${t('serviceOther')}</option>
+                    </select>
+                  </div>
+                  <div><label class="block text-sm font-semibold mb-1">🔧 ${t('type')} 2</label>
+                    <select id="interventoTipo2" class="w-full px-3 py-2 border rounded">
+                      <option value="">${t('selectType')}</option>
+                      <option value="Tagliando">${t('serviceOilChange')}</option>
+                      <option value="Riparazione">${t('serviceRepair')}</option>
+                      <option value="Revisione">${t('serviceInspection')}</option>
+                      <option value="Gomme">${t('serviceTires')}</option>
+                      <option value="Freni">${t('serviceBrakes')}</option>
+                      <option value="Batteria">${t('serviceBattery')}</option>
+                      <option value="Lampadine">${t('serviceBulbs')}</option>
+                      <option value="Fari">${t('serviceHeadlights')}</option>
+                      <option value="Scarico">${t('serviceExhaust')}</option>
+                      <option value="Climatizzazione">${t('serviceAirConditioning')}</option>
+                      <option value="Sospensioni">${t('serviceSuspension')}</option>
+                      <option value="Trasmissione">${t('serviceTransmission')}</option>
+                      <option value="Raffreddamento">${t('serviceCooling')}</option>
+                      <option value="Impianto elettrico">${t('serviceElectrical')}</option>
+                      <option value="Carrozzeria">${t('serviceBodywork')}</option>
+                      <option value="Cristalli">${t('serviceGlass')}</option>
+                      <option value="Altro">${t('serviceOther')}</option>
+                    </select>
+                  </div>
+                  <div><label class="block text-sm font-semibold mb-1">🔧 ${t('type')} 3</label>
+                    <select id="interventoTipo3" class="w-full px-3 py-2 border rounded">
+                      <option value="">${t('selectType')}</option>
+                      <option value="Tagliando">${t('serviceOilChange')}</option>
+                      <option value="Riparazione">${t('serviceRepair')}</option>
+                      <option value="Revisione">${t('serviceInspection')}</option>
+                      <option value="Gomme">${t('serviceTires')}</option>
+                      <option value="Freni">${t('serviceBrakes')}</option>
+                      <option value="Batteria">${t('serviceBattery')}</option>
+                      <option value="Lampadine">${t('serviceBulbs')}</option>
+                      <option value="Fari">${t('serviceHeadlights')}</option>
+                      <option value="Scarico">${t('serviceExhaust')}</option>
+                      <option value="Climatizzazione">${t('serviceAirConditioning')}</option>
+                      <option value="Sospensioni">${t('serviceSuspension')}</option>
+                      <option value="Trasmissione">${t('serviceTransmission')}</option>
+                      <option value="Raffreddamento">${t('serviceCooling')}</option>
+                      <option value="Impianto elettrico">${t('serviceElectrical')}</option>
+                      <option value="Carrozzeria">${t('serviceBodywork')}</option>
+                      <option value="Cristalli">${t('serviceGlass')}</option>
+                      <option value="Altro">${t('serviceOther')}</option>
+                    </select>
+                  </div>
+                  <div><label class="block text-sm font-semibold mb-1">🔧 ${t('type')} 4</label>
+                    <select id="interventoTipo4" class="w-full px-3 py-2 border rounded">
+                      <option value="">${t('selectType')}</option>
+                      <option value="Tagliando">${t('serviceOilChange')}</option>
+                      <option value="Riparazione">${t('serviceRepair')}</option>
+                      <option value="Revisione">${t('serviceInspection')}</option>
+                      <option value="Gomme">${t('serviceTires')}</option>
+                      <option value="Freni">${t('serviceBrakes')}</option>
+                      <option value="Batteria">${t('serviceBattery')}</option>
+                      <option value="Lampadine">${t('serviceBulbs')}</option>
+                      <option value="Fari">${t('serviceHeadlights')}</option>
+                      <option value="Scarico">${t('serviceExhaust')}</option>
+                      <option value="Climatizzazione">${t('serviceAirConditioning')}</option>
+                      <option value="Sospensioni">${t('serviceSuspension')}</option>
+                      <option value="Trasmissione">${t('serviceTransmission')}</option>
+                      <option value="Raffreddamento">${t('serviceCooling')}</option>
+                      <option value="Impianto elettrico">${t('serviceElectrical')}</option>
+                      <option value="Carrozzeria">${t('serviceBodywork')}</option>
+                      <option value="Cristalli">${t('serviceGlass')}</option>
+                      <option value="Altro">${t('serviceOther')}</option>
+                    </select>
+                  </div>
+                  <div><label class="block text-sm font-semibold mb-1">🔧 ${t('type')} 5</label>
+                    <select id="interventoTipo5" class="w-full px-3 py-2 border rounded">
                       <option value="">${t('selectType')}</option>
                       <option value="Tagliando">${t('serviceOilChange')}</option>
                       <option value="Riparazione">${t('serviceRepair')}</option>
