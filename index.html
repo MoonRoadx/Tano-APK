@@ -93,14 +93,7 @@
       color: white; border-radius: 8px; font-weight: bold; z-index: 1001; animation: slideUp 0.3s ease-out;
     }
     @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .tag {
-      display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-right: 5px; margin-bottom: 5px;
-    }
-    .tag-urgent { background: #dc2626; color: white; }
-    .tag-warranty { background: #059669; color: white; }
-    .tag-recurring { background: #2563eb; color: white; }
-    .tag-parts { background: #7c3aed; color: white; }
-    
+
     .install-prompt {
       position: fixed;
       bottom: 20px;
@@ -883,8 +876,7 @@
       const km = document.getElementById('interventoKm').value;
       const meccanico = document.getElementById('interventoMeccanico').value.trim();
       const note = document.getElementById('interventoNote').value.trim();
-      const tags = Array.from(document.querySelectorAll('.tag-checkbox:checked')).map(cb => cb.value);
-      
+
       const photos = [];
       const previewImages = document.querySelectorAll('#photoPreview img');
       previewImages.forEach(img => photos.push(img.src));
@@ -911,7 +903,6 @@
         meccanico, 
         note, 
         photos,
-        tags,
         paymentStatus: paymentStatus,
         paymentDate: paymentDate,
         timestamp: new Date().toISOString() 
@@ -1877,8 +1868,7 @@
                       <p class="text-gray-300 mb-2">${inter.descrizione}</p>
                       ${inter.ricambi ? `<div class="text-sm text-gray-400 mb-1"><span class="font-semibold">🔧 ${t('partsLabel')}</span> ${inter.ricambi}</div>` : ''}
                       ${inter.note ? `<div class="bg-yellow-900 bg-opacity-30 border-l-4 border-yellow-500 p-3 mt-2 rounded"><p class="text-sm text-gray-300"><span class="font-semibold">💬 ${t('notes')}:</span> ${inter.note}</p></div>` : ''}
-                      ${inter.tags?.length ? `<div class="mt-2">${inter.tags.map(tag => `<span class="tag tag-${tag}">${t('tag' + tag.charAt(0).toUpperCase() + tag.slice(1))}</span>`).join('')}</div>` : ''}
-                      
+
                       ${inter.photos?.length ? `<div class="grid grid-cols-3 md:grid-cols-5 gap-2 mt-3">
                         ${inter.photos.map((photo, i) => `<img src="${photo}" onclick="window.open('${photo}', '_blank')" 
                           class="w-full h-20 object-cover rounded cursor-pointer hover:scale-110 transition-transform border border-gray-600" 
@@ -2067,16 +2057,7 @@
                       </div>
                     </div>
                   </div>
-                  
-                  <div class="border-t border-gray-600 pt-3 mt-3">
-                    <h3 class="text-sm font-semibold text-gray-300 mb-2">🏷️ ${t('tags')}</h3>
-                    <div class="flex flex-wrap gap-2">
-                      <label class="flex items-center gap-2 text-sm text-gray-300"><input type="checkbox" class="tag-checkbox" value="urgent"> <span class="tag tag-urgent">${t('tagUrgent')}</span></label>
-                      <label class="flex items-center gap-2 text-sm text-gray-300"><input type="checkbox" class="tag-checkbox" value="warranty"> <span class="tag tag-warranty">${t('tagWarranty')}</span></label>
-                      <label class="flex items-center gap-2 text-sm text-gray-300"><input type="checkbox" class="tag-checkbox" value="recurring"> <span class="tag tag-recurring">${t('tagRecurring')}</span></label>
-                      <label class="flex items-center gap-2 text-sm text-gray-300"><input type="checkbox" class="tag-checkbox" value="parts"> <span class="tag tag-parts">${t('tagParts')}</span></label>
-                    </div>
-                  </div>
+
                   
                   <div class="border-t border-gray-600 pt-3 mt-3">
                     <h3 class="text-sm font-semibold text-gray-300 mb-2">📸 ${t('photos')} ${t('optional')}</h3>
