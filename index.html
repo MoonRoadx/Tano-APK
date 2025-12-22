@@ -1662,11 +1662,12 @@
               </div>
 
               ${isMechanicMode ? `
-                <div class="grid grid-cols-5 gap-2 mb-4">
+                <div class="grid grid-cols-3 md:grid-cols-6 gap-2 mb-4">
                   <button onclick="showAddForm=true; render();" class="bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700">➕ ${t('newButton')}</button>
                   <button onclick="exportToExcel()" class="bg-green-700 text-white py-3 rounded-lg font-semibold hover:bg-green-800">📊 ${t('exportCSV')}</button>
                   <button onclick="openShareModal('${currentVehicle}')" class="bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700">🔗 ${t('link')}</button>
                   <button onclick="generateInvoice()" class="pdf-button text-white py-3 rounded-lg font-semibold">📄 ${t('generateGlobalInvoice')}</button>
+                  <button onclick="generateCarnetEntretien('${currentVehicle}')" class="bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700">📘 Carnet</button>
                   <button onclick="showAdvancedSearch=!showAdvancedSearch; render();" class="bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700">🔍 ${t('searchAdvanced')}</button>
                 </div>
                 
@@ -1697,7 +1698,16 @@
                     </div>
                   </div>
                 ` : ''}
-              ` : `<div class="bg-blue-900 bg-opacity-50 text-white p-4 rounded-lg mb-4 text-center border border-blue-500"><p class="text-sm font-semibold">👤 ${t('clientMode')}</p></div>`}
+              ` : `
+                <div class="bg-blue-900 bg-opacity-50 text-white p-4 rounded-lg mb-4 text-center border border-blue-500">
+                  <p class="text-sm font-semibold">👤 ${t('clientMode')}</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
+                  <button onclick="generateInvoice()" class="pdf-button text-white py-3 rounded-lg font-semibold">📄 ${t('downloadReport')}</button>
+                  <button onclick="exportToExcel()" class="bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700">📊 Excel</button>
+                  <button onclick="generateCarnetEntretien('${currentVehicle}')" class="bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700">📘 Carnet</button>
+                </div>
+              `}
               
               <h2 class="text-xl font-bold mb-3 text-white">📋 ${t('history')} (${interventions.length})</h2>
               ${interventions.length === 0 ? `<div class="bg-white rounded-lg shadow p-8 text-center text-gray-400"><p>${searchQuery ? t('noVehiclesFound') : t('noInterventions')}</p></div>` : `
@@ -1988,6 +1998,135 @@
                style="width: ${Math.min(percentage, 100)}%; background-color: ${percentage > 80 ? '#ef4444' : percentage > 60 ? '#f59e0b' : '#10b981'}"></div>
         </div>
       `;
+    }
+
+
+    function generateCarnetEntretien(targa) {
+      const vehicle = vehicles[targa];
+      if (!vehicle) return;
+      
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      // En-tête du carnet
+      doc.setFontSize(20);
+      doc.setFont(undefined, 'bold');
+      doc.text('CARNET D\'ENTRETIEN', 105, 20, { align: 'center' });
+      
+      doc.setFontSize(12);
+      doc.setFont(undefined, 'normal');
+      doc.text('Conforme aux normes européennes', 105, 28, { align: 'center' });
+      
+      // Ligne de séparation
+      doc.setLineWidth(0.5);
+      doc.line(20, 32, 190, 32);
+      
+      // Informations du véhicule
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'bold');
+      doc.text('INFORMATIONS DU VÉHICULE', 20, 42);
+      
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'normal');
+      let y = 50;
+      
+      doc.text(`Immatriculation: ${vehicle.targa}`, 20, y);
+      if (vehicle.marca) doc.text(`Marque: ${vehicle.marca}`, 20, y += 6);
+      if (vehicle.modello) doc.text(`Modèle: ${vehicle.modello}`, 20, y += 6);
+      if (vehicle.anno) doc.text(`Année: ${vehicle.anno}`, 20, y += 6);
+      if (vehicle.vin) doc.text(`N° de châssis (VIN): ${vehicle.vin}`, 20, y += 6);
+      if (vehicle.chilometraggio) doc.text(`Kilométrage actuel: ${vehicle.chilometraggio} km`, 20, y += 6);
+      
+      // Informations du propriétaire
+      if (vehicle.cliente && vehicle.cliente.nome) {
+        y += 10;
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text('PROPRIÉTAIRE', 20, y);
+        
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        y += 8;
+        doc.text(`Nom: ${vehicle.cliente.nome}`, 20, y);
+        if (vehicle.cliente.email) doc.text(`Email: ${vehicle.cliente.email}`, 20, y += 6);
+        if (vehicle.cliente.telefono) doc.text(`Téléphone: ${vehicle.cliente.telefono}`, 20, y += 6);
+      }
+      
+      // Nouvelle page pour l'historique
+      doc.addPage();
+      
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'bold');
+      doc.text('HISTORIQUE DES INTERVENTIONS', 20, 20);
+      
+      // Tableau des interventions
+      const interventions = vehicle.interventi || [];
+      
+      if (interventions.length === 0) {
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'italic');
+        doc.text('Aucune intervention enregistrée', 20, 35);
+      } else {
+        const tableData = [];
+        
+        interventions.forEach((inter, index) => {
+          const types = [inter.tipo, inter.tipo2, inter.tipo3, inter.tipo4, inter.tipo5]
+            .filter(t => t)
+            .join(', ');
+          
+          const row = [
+            inter.data || '-',
+            inter.chilometraggio || '-',
+            types,
+            inter.descrizione || '-',
+            inter.ricambi || '-',
+            inter.meccanico || '-'
+          ];
+          
+          tableData.push(row);
+        });
+        
+        doc.autoTable({
+          startY: 30,
+          head: [['Date', 'Km', 'Type d\'intervention', 'Description', 'Pièces', 'Mécanicien']],
+          body: tableData,
+          theme: 'grid',
+          headStyles: { 
+            fillColor: [41, 128, 185], 
+            textColor: 255, 
+            fontStyle: 'bold',
+            fontSize: 9
+          },
+          styles: { 
+            fontSize: 8,
+            cellPadding: 2
+          },
+          columnStyles: {
+            0: { cellWidth: 22 },
+            1: { cellWidth: 18 },
+            2: { cellWidth: 35 },
+            3: { cellWidth: 40 },
+            4: { cellWidth: 35 },
+            5: { cellWidth: 30 }
+          },
+          margin: { left: 10, right: 10 }
+        });
+      }
+      
+      // Pied de page sur toutes les pages
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'italic');
+        doc.text(`Carnet d'entretien - ${vehicle.targa}`, 105, 285, { align: 'center' });
+        doc.text(`Page ${i} / ${pageCount}`, 105, 290, { align: 'center' });
+        doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, 20, 290);
+      }
+      
+      // Télécharger
+      doc.save(`Carnet_Entretien_${vehicle.targa}_${new Date().toISOString().split('T')[0]}.pdf`);
+      showNotification('✅ Carnet d\'entretien généré avec succès', 'success');
     }
 
     async function init() {
