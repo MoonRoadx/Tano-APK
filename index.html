@@ -1412,11 +1412,12 @@ const translations = {
       // En-tête
       doc.setFontSize(20);
       doc.setFont(undefined, 'bold');
-      doc.text('RAPPORT DE PAIEMENTS', 105, 20, { align: 'center' });
+      doc.text(t('paymentReport').toUpperCase(), 105, 20, { align: 'center' });
       
       doc.setFontSize(10);
       doc.setFont(undefined, 'normal');
-      doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, 105, 28, { align: 'center' });
+      const locale = currentLang === 'it' ? 'it-IT' : currentLang === 'fr' ? 'fr-FR' : 'en-US';
+      doc.text(`${t('generatedOn')} ${new Date().toLocaleDateString(locale)}`, 105, 28, { align: 'center' });
       
       // Ligne de séparation
       doc.setLineWidth(0.5);
@@ -2332,14 +2333,14 @@ const translations = {
         y += 10;
         doc.setFontSize(14);
         doc.setFont(undefined, 'bold');
-        doc.text('PROPRIÉTAIRE', 20, y);
+        doc.text(t('owner').toUpperCase(), 20, y);
         
         doc.setFontSize(10);
         doc.setFont(undefined, 'normal');
         y += 8;
-        doc.text(`Nom: ${vehicle.cliente.nome}`, 20, y);
+        doc.text(`${t('clientName')}: ${vehicle.cliente.nome}`, 20, y);
         if (vehicle.cliente.email) doc.text(`Email: ${vehicle.cliente.email}`, 20, y += 6);
-        if (vehicle.cliente.telefono) doc.text(`Téléphone: ${vehicle.cliente.telefono}`, 20, y += 6);
+        if (vehicle.cliente.telefono) doc.text(`${t('clientPhone')}: ${vehicle.cliente.telefono}`, 20, y += 6);
       }
       
       // Nouvelle page pour l'historique
@@ -2347,7 +2348,7 @@ const translations = {
       
       doc.setFontSize(14);
       doc.setFont(undefined, 'bold');
-      doc.text('HISTORIQUE DES INTERVENTIONS', 20, 20);
+      doc.text(t('interventionHistory').toUpperCase(), 20, 20);
       
       // Tableau des interventions
       const interventions = vehicle.interventi || [];
@@ -2355,7 +2356,7 @@ const translations = {
       if (interventions.length === 0) {
         doc.setFontSize(10);
         doc.setFont(undefined, 'italic');
-        doc.text('Aucune intervention enregistrée', 20, 35);
+        doc.text(t('noInterventionsRecorded'), 20, 35);
       } else {
         const tableData = [];
         
@@ -2378,7 +2379,7 @@ const translations = {
         
         doc.autoTable({
           startY: 30,
-          head: [['Date', 'Km', 'Type d\'intervention', 'Description', 'Pièces', 'Mécanicien']],
+          head: [[t('date'), 'Km', t('type'), t('description'), t('parts'), t('mechanic')]],
           body: tableData,
           theme: 'grid',
           headStyles: { 
@@ -2409,14 +2410,15 @@ const translations = {
         doc.setPage(i);
         doc.setFontSize(8);
         doc.setFont(undefined, 'italic');
-        doc.text(`Carnet d'entretien - ${vehicle.targa}`, 105, 285, { align: 'center' });
-        doc.text(`Page ${i} / ${pageCount}`, 105, 290, { align: 'center' });
-        doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, 20, 290);
+        const locale = currentLang === 'it' ? 'it-IT' : currentLang === 'fr' ? 'fr-FR' : 'en-US';
+        doc.text(`${t('maintenanceLog')} - ${vehicle.targa}`, 105, 285, { align: 'center' });
+        doc.text(`${t('page')} ${i} / ${pageCount}`, 105, 290, { align: 'center' });
+        doc.text(`${t('generatedOn')} ${new Date().toLocaleDateString(locale)}`, 20, 290);
       }
       
       // Télécharger
       doc.save(`Carnet_Entretien_${vehicle.targa}_${new Date().toISOString().split('T')[0]}.pdf`);
-      showNotification('✅ Carnet d\'entretien généré avec succès', 'success');
+      showNotification(`✅ ${t('maintenanceLog')} ${t('invoiceGenerated')}`, 'success');
     }
 
     async function init() {
