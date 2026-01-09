@@ -1675,7 +1675,8 @@ const translations = {
                       <option value="Scarico">${t('serviceExhaust')}</option>
                       <option value="Climatizzazione">${t('serviceAirConditioning')}</option>
                       <option value="Sospensioni">${t('serviceSuspension')}</option>
-                      <option value="Trasmissione">${t('serviceTransmission')}</option>
+                      <">${t('serviceTransmission')}</option>
+                      <option value="Kit distribuzione">${t('serviceTimingBelt')}</option>
                       <option value="Raffreddamento">${t('serviceCooling')}</option>
                       <option value="Impianto elettrico">${t('serviceElectrical')}</option>
                       <option value="Carrozzeria">${t('serviceBodywork')}</option>
@@ -1972,9 +1973,9 @@ const translations = {
                         ${isMechanicMode ? `<div class="flex flex-wrap gap-2">
                           ${inter.paymentStatus !== 'paid' ? `
                             <button onclick="updatePaymentStatus(${inter.id}, 'paid')" 
-                              class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-semibold">
-                              ✅ Marquer payé
-                            </button>` : ''}
+  class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-semibold">
+  ✅ ${t('markAsPaid')}
+</button>` : ''}
                           <button onclick="generateInvoice(${inter.id})" class="pdf-button text-white px-3 py-1 rounded text-sm font-semibold">📄 ${t('generateInvoice')}</button>
                           <button onclick="deleteIntervento(${inter.id})" class="text-red-500 hover:bg-red-50 px-2 py-1 rounded text-sm font-bold">✕</button>
                         </div>` : ''}
@@ -1999,7 +2000,7 @@ const translations = {
                           inter.paymentStatus === 'partial' ? 'bg-yellow-900 bg-opacity-40 border border-yellow-500 text-yellow-300' :
                           'bg-red-900 bg-opacity-40 border border-red-500 text-red-300'
                         }">
-                          ${inter.paymentStatus === 'paid' ? '✅ Payé' : inter.paymentStatus === 'partial' ? '⏳ Payé partiellement' : '❌ Non payé'}
+                          ${inter.paymentStatus === 'paid' ? '✅ ' + t('paymentStatusPaid') : inter.paymentStatus === 'partial' ? '⏳ ' + t('paymentStatusPartial') : '❌ ' + t('paymentStatusUnpaid')}
                           ${inter.paymentDate ? ` - ${inter.paymentDate}` : ''}
                         </div>
                       ` : ''}
@@ -2024,7 +2025,7 @@ const translations = {
                     .reduce((sum, i) => sum + (parseFloat(i.costo) || 0), 0);
                   return unpaid > 0 ? `
                     <div class="bg-red-500 bg-opacity-20 border border-red-300 rounded-lg px-3 py-2">
-                      <div class="text-sm font-semibold">❌ ${unpaid} impayé(s)</div>
+                      <div class="text-sm font-semibold">❌ ${unpaid} ${t('unpaidCount')}</div>
                       <div class="text-xs">${unpaidAmount.toFixed(2)} €</div>
                     </div>
                   ` : '';
@@ -2050,6 +2051,7 @@ const translations = {
                       <option value="Climatizzazione">${t('serviceAirConditioning')}</option>
                       <option value="Sospensioni">${t('serviceSuspension')}</option>
                       <option value="Trasmissione">${t('serviceTransmission')}</option>
+                      <option value="Kit distribuzione">${t('serviceTimingBelt')}</option>
                       <option value="Raffreddamento">${t('serviceCooling')}</option>
                       <option value="Impianto elettrico">${t('serviceElectrical')}</option>
                       <option value="Carrozzeria">${t('serviceBodywork')}</option>
@@ -2072,6 +2074,7 @@ const translations = {
                       <option value="Climatizzazione">${t('serviceAirConditioning')}</option>
                       <option value="Sospensioni">${t('serviceSuspension')}</option>
                       <option value="Trasmissione">${t('serviceTransmission')}</option>
+                      <option value="Kit distribuzione">${t('serviceTimingBelt')}</option>
                       <option value="Raffreddamento">${t('serviceCooling')}</option>
                       <option value="Impianto elettrico">${t('serviceElectrical')}</option>
                       <option value="Carrozzeria">${t('serviceBodywork')}</option>
@@ -2094,6 +2097,7 @@ const translations = {
                       <option value="Climatizzazione">${t('serviceAirConditioning')}</option>
                       <option value="Sospensioni">${t('serviceSuspension')}</option>
                       <option value="Trasmissione">${t('serviceTransmission')}</option>
+                      <option value="Kit distribuzione">${t('serviceTimingBelt')}</option>
                       <option value="Raffreddamento">${t('serviceCooling')}</option>
                       <option value="Impianto elettrico">${t('serviceElectrical')}</option>
                       <option value="Carrozzeria">${t('serviceBodywork')}</option>
@@ -2116,6 +2120,7 @@ const translations = {
                       <option value="Climatizzazione">${t('serviceAirConditioning')}</option>
                       <option value="Sospensioni">${t('serviceSuspension')}</option>
                       <option value="Trasmissione">${t('serviceTransmission')}</option>
+                      <option value="Kit distribuzione">${t('serviceTimingBelt')}</option>
                       <option value="Raffreddamento">${t('serviceCooling')}</option>
                       <option value="Impianto elettrico">${t('serviceElectrical')}</option>
                       <option value="Carrozzeria">${t('serviceBodywork')}</option>
@@ -2138,6 +2143,7 @@ const translations = {
                       <option value="Climatizzazione">${t('serviceAirConditioning')}</option>
                       <option value="Sospensioni">${t('serviceSuspension')}</option>
                       <option value="Trasmissione">${t('serviceTransmission')}</option>
+                      <option value="Kit distribuzione">${t('serviceTimingBelt')}</option>
                       <option value="Raffreddamento">${t('serviceCooling')}</option>
                       <option value="Impianto elettrico">${t('serviceElectrical')}</option>
                       <option value="Carrozzeria">${t('serviceBodywork')}</option>
@@ -2295,11 +2301,11 @@ const translations = {
       // En-tête du carnet
       doc.setFontSize(20);
       doc.setFont(undefined, 'bold');
-      doc.text('CARNET D\'ENTRETIEN', 105, 20, { align: 'center' });
+      doc.text(t('maintenanceLog').toUpperCase(), 105, 20, { align: 'center' });
       
       doc.setFontSize(12);
       doc.setFont(undefined, 'normal');
-      doc.text('Conforme aux normes européennes', 105, 28, { align: 'center' });
+      doc.text(t('conformsToStandards'), 105, 28, { align: 'center' });
       
       // Ligne de séparation
       doc.setLineWidth(0.5);
@@ -2308,18 +2314,18 @@ const translations = {
       // Informations du véhicule
       doc.setFontSize(14);
       doc.setFont(undefined, 'bold');
-      doc.text('INFORMATIONS DU VÉHICULE', 20, 42);
+      doc.text(t('vehicleInfo').toUpperCase(), 20, 42);
       
       doc.setFontSize(10);
       doc.setFont(undefined, 'normal');
       let y = 50;
       
-      doc.text(`Immatriculation: ${vehicle.targa}`, 20, y);
-      if (vehicle.marca) doc.text(`Marque: ${vehicle.marca}`, 20, y += 6);
-      if (vehicle.modello) doc.text(`Modèle: ${vehicle.modello}`, 20, y += 6);
-      if (vehicle.anno) doc.text(`Année: ${vehicle.anno}`, 20, y += 6);
-      if (vehicle.vin) doc.text(`N° de châssis (VIN): ${vehicle.vin}`, 20, y += 6);
-      if (vehicle.chilometraggio) doc.text(`Kilométrage actuel: ${vehicle.chilometraggio} km`, 20, y += 6);
+      doc.text(`${t('plate')}: ${vehicle.targa}`, 20, y);
+      if (vehicle.marca) doc.text(`${t('brand')}: ${vehicle.marca}`, 20, y += 6);
+      if (vehicle.modello) doc.text(`${t('model')}: ${vehicle.modello}`, 20, y += 6);
+      if (vehicle.anno) doc.text(`${t('year')}: ${vehicle.anno}`, 20, y += 6);
+      if (vehicle.vin) doc.text(`${t('vinNumber')}: ${vehicle.vin}`, 20, y += 6);
+      if (vehicle.chilometraggio) doc.text(`${t('currentMileage')}: ${vehicle.chilometraggio} km`, 20, y += 6);
       
       // Informations du propriétaire
       if (vehicle.cliente && vehicle.cliente.nome) {
