@@ -1806,7 +1806,7 @@ showNotification(`✅ ${t('paymentReport')} ${t('invoiceGenerated')}`, 'success'
                   </div>
                   
                   <div class="border-t border-gray-600 pt-3 mt-3">
-                    <h3 class="text-sm font-semibold text-gray-300 mb-2">👤 ${t('clientInfo')}</h3>
+                    <h3 class="text-sm font-semibold text-gray-300 mb-3">💰 ${t('paymentStatus')}</h3>
                     <input type="text" id="clienteNome" placeholder="${t('clientName')} *" class="w-full px-3 py-2 border rounded mb-2">
                     <input type="tel" id="clienteTelefono" placeholder="${t('clientPhone')}" class="w-full px-3 py-2 border rounded mb-2">
                     <input type="email" id="clienteEmail" placeholder="${t('clientEmail')}" class="w-full px-3 py-2 border rounded">
@@ -2165,15 +2165,15 @@ showNotification(`✅ ${t('paymentReport')} ${t('invoiceGenerated')}`, 'success'
                     <h3 class="text-sm font-semibold text-gray-300 mb-3">💰 Paiement</h3>
                     <div class="grid grid-cols-2 gap-3">
                       <div>
-                        <label class="block text-sm font-semibold mb-1">Statut *</label>
+                        <label class="block text-sm font-semibold mb-1">${t('status')} *</label>
                         <select id="interventoPaymentStatus" class="w-full px-3 py-2 border rounded">
-                          <option value="unpaid">❌ Non payé</option>
-                          <option value="partial">⏳ Payé partiellement</option>
-                          <option value="paid">✅ Payé</option>
-                        </select>
+                         <option value="unpaid">❌ ${t('paymentStatusUnpaid')}</option>
+                         <option value="partial">⏳ ${t('paymentStatusPartial')}</option>
+                         <option value="paid">✅ ${t('paymentStatusPaid')}</option>
+                         </select>
                       </div>
                       <div>
-                        <label class="block text-sm font-semibold mb-1">Date paiement</label>
+                        <label class="block text-sm font-semibold mb-1">${t('paymentDate')}</label>
                         <input type="date" id="interventoPaymentDate" class="w-full px-3 py-2 border rounded">
                       </div>
                     </div>
@@ -2282,7 +2282,7 @@ showNotification(`✅ ${t('paymentReport')} ${t('invoiceGenerated')}`, 'success'
       
       indicator.innerHTML = `
         <div class="text-xs text-gray-400">
-          📊 Stockage: ${formatBytes(totalSize)} / ${formatBytes(maxSize)} (${Math.round(percentage)}%)
+          📊 ${t('storage')}: ${formatBytes(totalSize)} / ${formatBytes(maxSize)} (${Math.round(percentage)}%)
         </div>
         <div class="w-full bg-gray-700 rounded-full h-2 mt-1">
           <div class="h-2 rounded-full transition-all" 
