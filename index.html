@@ -2444,7 +2444,7 @@ showNotification(`✅ ${t('paymentReport')} ${t('invoiceGenerated')}`, 'success'
       }
       
       // Télécharger
-      doc.save(`Carnet_Entretien_${vehicle.targa}_${new Date().toISOString().split('T')[0]}.pdf`);
+      doc.save(`${t('maintenanceLog').replace(/\s+/g, '_')}_${vehicle.targa}_${new Date().toISOString().split('T')[0]}.pdf`);
       showNotification(`✅ ${t('maintenanceLog')} ${t('invoiceGenerated')}`, 'success');
     }
 
