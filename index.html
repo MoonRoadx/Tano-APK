@@ -1498,7 +1498,20 @@ showNotification(`✅ ${t('paymentReport')} ${t('invoiceGenerated')}`, 'success'
         if (photoInput && !photoInput.hasAttribute('data-listener')) {
           photoInput.setAttribute('data-listener', 'true');
           photoInput.addEventListener('change', function(e) {
-            const files = Array.from(e.target.files);
+  const files = Array.from(e.target.files);
+  
+  // Afficher le nombre de fichiers sélectionnés
+  const fileCountEl = document.getElementById('fileCount');
+  if (fileCountEl) {
+    if (files.length > 0) {
+      fileCountEl.textContent = `(${files.length} ${files.length === 1 ? t('photo') : t('photos')})`;
+    } else {
+      fileCountEl.textContent = '';
+    }
+  }
+  
+  const previews = document.getElementById('photoPreview');
+            
             const previews = document.getElementById('photoPreview');
             if (!previews) return;
             
@@ -2162,7 +2175,7 @@ showNotification(`✅ ${t('paymentReport')} ${t('invoiceGenerated')}`, 'success'
                   <div><label class="block text-sm font-semibold mb-1">💬 ${t('notes')}</label><textarea id="interventoNote" rows="3" placeholder="${t('observations')}" class="w-full px-3 py-2 border rounded"></textarea></div>
                   
                   <div class="border-t border-gray-600 pt-3 mt-3">
-                    <h3 class="text-sm font-semibold text-gray-300 mb-3">💰 Paiement</h3>
+                    <h3 class="text-sm font-semibold text-gray-300 mb-3">💰 ${t('paymentStatus')}</h3>
                     <div class="grid grid-cols-2 gap-3">
                       <div>
                         <label class="block text-sm font-semibold mb-1">${t('status')} *</label>
@@ -2181,14 +2194,22 @@ showNotification(`✅ ${t('paymentReport')} ${t('invoiceGenerated')}`, 'success'
 
                   
                   <div class="border-t border-gray-600 pt-3 mt-3">
-                    <h3 class="text-sm font-semibold text-gray-300 mb-2">📸 ${t('photos')} ${t('optional')}</h3>
-                    <div id="storageIndicator" class="mb-3 p-2 bg-gray-800 bg-opacity-50 rounded"></div>
-                    <input type="file" id="photoInput" multiple accept="image/*" capture="environment" 
-                           class="w-full px-3 py-2 border rounded bg-gray-800 text-white border-gray-600 text-sm file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-600 file:text-white">
-                    <p class="text-xs text-gray-500 mt-1">🤖 ${t('photoUploadHint')}</p>
-                    <p class="text-xs text-green-400 mt-1">✨ Compressione automatica attiva (risparmio 50-80%)</p>
-                    <div id="photoPreview" class="grid grid-cols-3 gap-2 mt-3"></div>
-                  </div>
+                   <h3 class="text-sm font-semibold text-gray-300 mb-2">📸 ${t('photos')} ${t('optional')}</h3>
+                   <div id="storageIndicator" class="mb-3 p-2 bg-gray-800 bg-opacity-50 rounded"></div>
+  
+                 <!-- Bouton personnalisé -->
+                  <label for="photoInput" class="block w-full cursor-pointer">
+                  <div class="w-full px-4 py-3 border-2 border-dashed rounded-lg bg-gray-800 hover:bg-gray-700 border-gray-600 hover:border-blue-500 transition-all text-center">
+                  <span class="text-blue-400 font-semibold">📁 ${t('selectPhotos')}</span>
+                  <span id="fileCount" class="text-gray-400 text-sm ml-2"></span>
+                 </div>
+                </label>
+                 <input type="file" id="photoInput" multiple accept="image/*" capture="environment" class="hidden">
+  
+                 <p class="text-xs text-gray-500 mt-2">🤖 ${t('photoUploadHint')}</p>
+                 <p class="text-xs text-green-400 mt-1">✨ ${t('compressionActive')} (${t('savingPercent')} 50-80%)</p>
+                 <div id="photoPreview" class="grid grid-cols-3 gap-2 mt-3"></div>
+                </div>
                   
                   <div class="flex gap-2 pt-2">
                     <button onclick="addIntervento()" class="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700">✅ ${t('save')}</button>
