@@ -1498,19 +1498,7 @@ showNotification(`✅ ${t('paymentReport')} ${t('invoiceGenerated')}`, 'success'
         if (photoInput && !photoInput.hasAttribute('data-listener')) {
           photoInput.setAttribute('data-listener', 'true');
           photoInput.addEventListener('change', function(e) {
-  const files = Array.from(e.target.files);
-  
-  // Afficher le nombre de fichiers sélectionnés
-  const fileCountEl = document.getElementById('fileCount');
-  if (fileCountEl) {
-    if (files.length > 0) {
-      fileCountEl.textContent = `(${files.length} ${files.length === 1 ? t('photo') : t('photos')})`;
-    } else {
-      fileCountEl.textContent = '';
-    }
-  }
-  
-  const previews = document.getElementById('photoPreview');
+        const files = Array.from(e.target.files);
             
             const previews = document.getElementById('photoPreview');
             if (!previews) return;
