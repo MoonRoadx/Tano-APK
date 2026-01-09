@@ -1426,31 +1426,31 @@ const translations = {
       // Résumé
       doc.setFontSize(14);
       doc.setFont(undefined, 'bold');
-      doc.text('RÉSUMÉ GLOBAL', 20, 42);
+      doc.text(t('globalSummary').toUpperCase(), 20, 42);
       
       doc.setFontSize(10);
       doc.setFont(undefined, 'normal');
       let y = 50;
       
-      doc.text(`Chiffre d'affaires total: ${stats.total.toFixed(2)} €`, 20, y);
-      doc.text(`Montant payé: ${stats.amountPaid.toFixed(2)} € (${(stats.amountPaid/stats.total*100).toFixed(1)}%)`, 20, y += 6);
-      doc.text(`Montant non payé: ${stats.amountUnpaid.toFixed(2)} € (${(stats.amountUnpaid/stats.total*100).toFixed(1)}%)`, 20, y += 6);
+      doc.text(`${t('totalRevenue')}: ${stats.total.toFixed(2)} €`, 20, y);
+      doc.text(`${t('amountPaid')}: ${stats.amountPaid.toFixed(2)} € (${(stats.amountPaid/stats.total*100).toFixed(1)}%)`, 20, y += 6);
+      doc.text(`${t('amountUnpaid')}: ${stats.amountUnpaid.toFixed(2)} € (${(stats.amountUnpaid/stats.total*100).toFixed(1)}%)`, 20, y += 6);
       if (stats.partial > 0) {
-        doc.text(`Montant partiel: ${stats.amountPartial.toFixed(2)} € (${(stats.amountPartial/stats.total*100).toFixed(1)}%)`, 20, y += 6);
+        doc.text(`${t('amountPartial')}: ${stats.amountPartial.toFixed(2)} € (${(stats.amountPartial/stats.total*100).toFixed(1)}%)`, 20, y += 6);
       }
       
-      doc.text(`Total interventions: ${stats.paid + stats.unpaid + stats.partial}`, 20, y += 10);
-      doc.text(`Payées: ${stats.paid}`, 20, y += 6);
-      doc.text(`Non payées: ${stats.unpaid}`, 20, y += 6);
+      doc.text(`${t('totalInterventions')}: ${stats.paid + stats.unpaid + stats.partial}`, 20, y += 10);
+      doc.text(`${t('paid')}: ${stats.paid}`, 20, y += 6);
+      doc.text(`${t('unpaid')}: ${stats.unpaid}`, 20, y += 6);
       if (stats.partial > 0) {
-        doc.text(`Partielles: ${stats.partial}`, 20, y += 6);
+      doc.text(`${t('partial')}: ${stats.partial}`, 20, y += 6);
       }
       
       // Interventions non payées détaillées
       y += 15;
       doc.setFontSize(14);
       doc.setFont(undefined, 'bold');
-      doc.text('INTERVENTIONS NON PAYÉES', 20, y);
+      doc.text(t('unpaidInterventions').toUpperCase(), 20, y);
       
       const unpaidList = [];
       Object.entries(vehicles).forEach(([targa, vehicle]) => {
@@ -1470,7 +1470,7 @@ const translations = {
       if (unpaidList.length > 0) {
         doc.autoTable({
           startY: y + 5,
-          head: [['Véhicule', 'Date', 'Type', 'Montant']],
+          head: [[t('vehicle'), t('date'), t('type'), t('amount')]],
           body: unpaidList,
           theme: 'grid',
           headStyles: { fillColor: [220, 38, 38], textColor: 255, fontStyle: 'bold' },
@@ -1479,11 +1479,11 @@ const translations = {
       } else {
         doc.setFontSize(10);
         doc.setFont(undefined, 'italic');
-        doc.text('Aucune intervention impayée', 20, y + 10);
+        doc.text(t('noUnpaidInterventions'), 20, y + 10);
       }
       
-      doc.save(`Rapport_Paiements_${new Date().toISOString().split('T')[0]}.pdf`);
-      showNotification('✅ Rapport de paiements généré', 'success');
+      doc.save(`${t('paymentReport')}_${new Date().toISOString().split('T')[0]}.pdf`);
+showNotification(`✅ ${t('paymentReport')} ${t('invoiceGenerated')}`, 'success');
     }
 
     function render() {
